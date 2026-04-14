@@ -116,8 +116,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -144,4 +149,3 @@ import os
 
 TWILIO_ACCOUNT_SID = os.getenv("AC1b6a640ddbba84eaf4afa11dbe7074dc")
 TWILIO_AUTH_TOKEN = os.getenv("ae5faece0c725d78aebdbc429c50106e")
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
