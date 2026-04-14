@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row hero text-center">
+    <div class="col-md-8 mx-auto">
+
+        <!-- Title -->
+        <h1 class="display-4 fw-bold text-primary mb-3">
+            SmartTask Reminder
+        </h1>
+
+  
+        <!-- Buttons -->
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 me-md-2">
+            Get Started
+        </a>
+        <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4">
+            Login
+        </a>
+
+       <p class="text-muted text-center small mt-2">
+   © 2026 SmartTask Portal | Developed & Maintained by Gowri Sankar
+</p>
+    </div>
+</div>
+{% endblock %}

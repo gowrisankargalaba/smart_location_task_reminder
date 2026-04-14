@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTask | Login</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Vanta.js Dependencies for 3D Background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        /* 3D Background Container */
+        #vanta-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Perfectly Centered Overlay */
+        .login-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            /* Above background */
+        }
+
+        /* Premium Glass Panel */
+        .glass-panel {
+            background: rgba(20, 21, 38, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            transform: translateY(0);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotateX(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotateX(2deg);
+            }
+
+            100% {
+                transform: translateY(0px) rotateX(0deg);
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+            letter-spacing: 0.5px;
+        }
+
+        p.subtitle {
+            color: #a0a6c0;
+            font-size: 0.9rem;
+            margin: 0 0 30px 0;
+            line-height: 1.5;
+        }
+
+        .custom-input {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            width: 100%;
+            margin-bottom: 20px;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .custom-input::placeholder {
+            color: #8c92b0;
+        }
+
+        .custom-input:focus {
+            border-color: #8c9eff;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 15px rgba(140, 158, 255, 0.3);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #6251ee, #4535c1);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            width: 100%;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: 0.3s;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(98, 81, 238, 0.4);
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #7162ff, #5142d1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(98, 81, 238, 0.6);
+        }
+
+        .msg-error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .footer-text {
+            color: #7b819f;
+            font-size: 0.8rem;
+            margin-top: 25px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 3D Vanta Background Network -->
+    <div id="vanta-bg"></div>
+
+    <!-- Centered Login Box -->
+    <div class="login-wrapper">
+        <div class="glass-panel">
+            <div class="logo-container">
+                <i class="fa-solid fa-satellite-dish"
+                    style="font-size: 3rem; color: #8c9eff; filter: drop-shadow(0 0 10px rgba(140, 158, 255, 0.5));"></i>
+            </div>
+            <h3>SmartTask Portal</h3>
+            <p class="subtitle">Log in to track your location-aware tasks securely in real-time.</p>
+
+            {% if messages %}
+            <div class="msg-error">
+                {% for message in messages %}
+                {{ message }}<br>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="name" class="custom-input" placeholder="Full Name" required>
+                <input type="email" name="email" class="custom-input" placeholder="Email Address" required>
+                <input type="tel" name="phone" class="custom-input" placeholder="Phone Number" required>
+                <button type="submit" class="btn-login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login
+                    Securely</button>
+            </form>
+
+            <p class="footer-text">
+                  © 2026 SmartTask Portal | Developed & Maintained By <strong><b>Gowri Sankar Galaba</b></strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Vanta 3D Network particle animation
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x6251ee,          // purple theme matching button
+            backgroundColor: 0x0f101f, // rich dark back
+            points: 12.00,
+            maxDistance: 22.00,
+            spacing: 16.00
+        });
+    </script>
+</body>
+
+</html>

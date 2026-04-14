@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-5">
+        <div class="card card-custom p-4 mb-4">
+            <h3 class="mb-3">{{ task.title }}</h3>
+            <p class="text-muted"><i class="fa-regular fa-clock"></i> Scheduled for: <strong>{{ task.date }}</strong> at
+                <strong>{{ task.time|time:"H:i" }}</strong>
+            </p>
+            <hr>
+            <h5>Description</h5>
+            <p>{{ task.description|default:"No description provided." }}</p>
+            <div class="alert alert-info mt-3">
+                <i class="fa-solid fa-magnifying-glass-location"></i> Looking for: <strong>{{ task.keyword }}</strong>
+            </div>
+
+            {% if not task.is_completed %}
+            <form action="{% url 'mark_completed' task.id %}" method="post" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success w-100"><i class="fa-solid fa-check"></i> Mark as
+                    Completed</button>
+            </form>
+            {% else %}
+            <div class="alert alert-success mt-4"><i class="fa-solid fa-check-double"></i> This task is completed.</div>
+            {% endif %}
+
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-100 mt-2">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card card-custom p-4 h-100">
+            <h4 class="mb-3"><i class="fa-solid fa-map-location-dot"></i> Nearby Places for "{{ task.keyword }}"</h4>
+            <div id="map" style="height: 400px; width: 100%; border-radius: 8px; background-color: #eee;"></div>
+            <div id="places-list" class="mt-3 list-group" style="max-height: 300px; overflow-y: auto;">
+                <p class="text-center text-muted mt-4" id="map-status">Requesting location access...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Google Maps API -->
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIPbgRXzLosqB1vxSWVyfUy2vYflpU3zg&libraries=places"></script>
+<script>
+    let map;
+    let service;
+    let infowindow;
+
+    function initMap(lat, lng) {
+        document.getElementById('map-status').style.display = 'none';
+        const userLocation = new google.maps.LatLng(lat, lng);
+
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: userLocation,
+            zoom: 14
+        });
+
+        // Add marker for user
+        new google.maps.Marker({
+            position: userLocation,
+            map: map,
+            title: "Your Location",
+            icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+        });
+
+        const request = {
+            location: userLocation,
+            radius: '5000',
+            keyword: '{{ task.keyword|escapejs }}'
+        };
+
+        service = new google.maps.places.PlacesService(map);
+        service.nearbySearch(request, callback);
+    }
+
+    function callback(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            const listContainer = document.getElementById('places-list');
+            listContainer.innerHTML = ''; // clear status text
+
+            if (results.length === 0) {
+                listContainer.innerHTML = '<p class="text-center text-muted">No nearby places found for this keyword.</p>';
+                return;
+            }
+
+            for (let i = 0; i < results.length; i++) {
+                createMarker(results[i]);
+
+                // Add to list
+                const item = document.createElement('a');
+                item.className = 'list-group-item list-group-item-action';
+                item.href = '#';
+                item.innerHTML = `<strong>${results[i].name}</strong><br><small class="text-muted"><i class="fa-solid fa-star text-warning"></i> ${results[i].rating || 'N/A'} &bull; ${results[i].vicinity}</small>`;
+                listContainer.appendChild(item);
+            }
+        } else {
+            console.error('Places API failed: ', status);
+            document.getElementById('places-list').innerHTML = '<p class="text-center text-danger">Failed to load nearby places. Ensure API key is valid.</p>';
+        }
+    }
+
+    function createMarker(place) {
+        const marker = new google.maps.Marker({
+            map: map,
+            position: place.geometry.location
+        });
+
+        google.maps.event.addListener(marker, 'click', function () {
+            if (!infowindow) {
+                infowindow = new google.maps.InfoWindow();
+            }
+            infowindow.setContent(place.name);
+            infowindow.open(map, this);
+        });
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                initMap(position.coords.latitude, position.coords.longitude);
+            },
+            function (error) {
+                document.getElementById('map-status').innerText = "Location access denied. Cannot display nearby places.";
+                console.warn("Geolocation error:", error);
+            }
+        );
+    } else {
+        document.getElementById('map-status').innerText = "Geolocation is not supported by this browser.";
+    }
+</script>
+{% endblock %}
