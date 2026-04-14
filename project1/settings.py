@@ -144,3 +144,4 @@ import os
 
 TWILIO_ACCOUNT_SID = os.getenv("AC1b6a640ddbba84eaf4afa11dbe7074dc")
 TWILIO_AUTH_TOKEN = os.getenv("ae5faece0c725d78aebdbc429c50106e")
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
